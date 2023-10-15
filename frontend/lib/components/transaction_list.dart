@@ -12,29 +12,27 @@ class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height*0.5,
+      height: MediaQuery.of(context).size.height * 0.5,
       child: transactions.isEmpty
-          ? LayoutBuilder(builder: 
-          (ctx,constraits){
-            return Column(
-              children: [
-               SizedBox(height: constraits.maxHeight*0.05),
-                Text(
-                  'Nenhuma arquivo enviado!',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-               SizedBox(height: constraits.maxHeight*0.05),
-                SizedBox(
-                  height: constraits.maxHeight*0.6,
-                  child: Image.asset(
-                    'assets/images/waiting.png',
-                    fit: BoxFit.cover,
+          ? LayoutBuilder(builder: (ctx, constraits) {
+              return Column(
+                children: [
+                  SizedBox(height: constraits.maxHeight * 0.05),
+                  Text(
+                    'Nenhuma arquivo enviado!',
+                    style: Theme.of(context).textTheme.headline6,
                   ),
-                ),
-              ],
-            );
-          })
-          
+                  SizedBox(height: constraits.maxHeight * 0.05),
+                  SizedBox(
+                    height: constraits.maxHeight * 0.6,
+                    child: Image.asset(
+                      'assets/images/waiting.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ],
+              );
+            })
           : ListView.builder(
               itemCount: transactions.length,
               itemBuilder: (ctx, index) {
@@ -71,7 +69,14 @@ class TransactionList extends StatelessWidget {
                                 // Lógica para lidar com o download aqui
                               },
                             )),
-                        SizedBox(width: 30.0),
+                        LayoutBuilder(builder: (ctx, constraits) {
+                          return Column(
+                            children: [
+                              SizedBox(height: constraits.maxHeight * 0.05),
+
+                            ],
+                          );
+                        }),
                         Padding(
                           padding: const EdgeInsets.all(5.0),
                           child: IconButton(
@@ -94,8 +99,11 @@ class TransactionList extends StatelessWidget {
                                         },
                                       ),
                                       TextButton(
-                                        child: Text('Deletar',
-                                        style: TextStyle(color: Colors.red[900] ),),
+                                        child: Text(
+                                          'Deletar',
+                                          style:
+                                              TextStyle(color: Colors.red[900]),
+                                        ),
                                         onPressed: () {
                                           onRemove(tr.id);
                                           // ...
