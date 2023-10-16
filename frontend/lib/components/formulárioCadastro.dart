@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'planos_DropDown.dart';
 
 class FormularioCadastro extends StatefulWidget {
-  final void Function(String, String, String) onSubmit;
+  final void Function(String, String, String,BuildContext) onSubmit;
   final Map<String, String> planos;
   Dropdown? _dropdown;
-  FormularioCadastro(this.onSubmit, this.planos, {Key? key}) : super(key: key) {
+  BuildContext _context;
+  FormularioCadastro(this.onSubmit, this.planos,this._context, {Key? key}) : super(key: key) {
     _dropdown = Dropdown(planos);
   }
 
@@ -26,7 +27,7 @@ class _FormularioCadastroState extends State<FormularioCadastro> {
       return;
     }
 
-    widget.onSubmit(email, senha, _idPlano);
+    widget.onSubmit(email, senha, _idPlano,widget._context);
   }
 
   @override

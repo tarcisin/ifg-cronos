@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 
 class FormularioLogin extends StatefulWidget {
-  final void Function(String, String) onSubmit;
-
-  FormularioLogin(this.onSubmit, {Key? key}) : super(key: key) {
+  final void Function(String, String, BuildContext) onSubmit;
+  BuildContext _context;
+  FormularioLogin(this.onSubmit, this._context, {Key? key}) : super(key: key) {
    
   }
 
@@ -23,7 +23,7 @@ class _formularioLoginState extends State<FormularioLogin> {
       return;
     }
 
-    widget.onSubmit(email, senha);
+    widget.onSubmit(email, senha,widget._context);
   }
 
   @override

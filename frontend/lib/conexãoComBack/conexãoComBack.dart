@@ -2,14 +2,10 @@ import "dart:convert";
 import "dart:io";
 import 'package:http/http.dart' as http;
 
-
-const String _hostName="http://localhost:3000";
-
-
-
+const String _hostName = "http://localhost:3000";
 
 Future<dynamic> pegaPlanos() async {
-  const String servidor = _hostName+"/planos";
+  const String servidor = _hostName + "/planos";
   try {
     final response = await http.get(
       Uri.parse(servidor),
@@ -24,10 +20,11 @@ Future<dynamic> pegaPlanos() async {
   } catch (e) {
     print('Erro durante o upload: $e');
   }
+  return false;
 }
 
 Future<bool> uploadFile(File file) async {
-  const String servidor = _hostName+"files";
+  const String servidor = _hostName + "files";
   try {
     var request = http.MultipartRequest('POST', Uri.parse(servidor));
 
@@ -49,35 +46,23 @@ Future<bool> uploadFile(File file) async {
 
 Future<dynamic> criaConta(
     final String email, final String senha, final String idPlano) async {
-  const String servidor = _hostName+"/user";
+  const String servidor = _hostName + "/user";
   final response = await http.post(
     Uri.parse(servidor),
     body: {'email': email, "senha": senha, "idPlano": idPlano},
   );
 
-  if (response.statusCode == 201) {
-    print(response.body);
-  } else {
-    print(response.body + " " + response.statusCode.toString());
-
-    return false;
-  }
-  return json.decode(response.body);
+  
+  return (response);
 }
 
 Future<dynamic> login(final String email, final String senha) async {
-  const String servidor = _hostName+"/user/login";
+  const String servidor = _hostName + "/user/login";
   final response = await http.post(
     Uri.parse(servidor),
     body: {'email': email, "senha": senha},
   );
 
-  if (response.statusCode == 200) {
-    print(response.body);
-  } else {
-    print(response.body + " " + response.statusCode.toString());
-
-    return false;
-  }
-  return json.decode(response.body);
+  
+  return response;
 }

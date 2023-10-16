@@ -1,7 +1,11 @@
-
+import "package:expenses/components/formulárioCadastro.dart";
+import "package:expenses/conexãoComBack/conexãoComBack.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/Services.dart';
 import 'components/telaDeArquivos.dart';
+import 'package:expenses/components/formulárioLogin.dart';
+import 'package:expenses/components/Alerta.dart';
+import "dart:convert";
 
 main() => runApp(ExpensesApp());
 
@@ -42,6 +46,76 @@ class ExpensesApp extends StatelessWidget {
   }
 }
 
+_abrirLogin(BuildContext context) async {
+  showModalBottomSheet(
+    context: context,
+    isDismissible: false,
+    builder: (_) {
+      return FormularioLogin(_dadosLogin, context);
+    },
+  );
+}
+
+_abrirCadastro(BuildContext context) async {
+  dynamic planos = await pegaPlanos();
+  if (planos == false) {
+    Alerta(context, "Não foi possível acessar o servidor",
+        "Verifique sua conexão e tente novamente");
+    return;
+  }
+  Map<String, String> mapPlanos = {};
+  for (dynamic i in planos) {
+    mapPlanos[i['name']] = i['_id'];
+  }
+
+  showModalBottomSheet(
+    context: context,
+    isDismissible: false,
+    builder: (_) {
+      return FormularioCadastro(_dadosCadastro, mapPlanos, context);
+    },
+  );
+}
+
+_dadosCadastro(
+    String email, String senha, String idPlano, BuildContext context) async {
+  print(email + " " + senha + " " + idPlano);
+  dynamic b = await criaConta(email, senha, idPlano);
+
+  if (b.statusCode != 201) {
+    if (b.body[0] == '{') {
+      Alerta(context, "Erro ao criar conta!", json.decode(b.body)["mensagem"]);
+      return;
+    }
+    Alerta(context, "Erro ao criar conta!", b.body.toString());
+    return;
+  }
+  Alerta(context, "Sucesso!", "Sua conta foi criada!");
+  return;
+}
+
+_dadosLogin(String email, String senha, BuildContext context) async {
+  dynamic resposta = await login(email, senha);
+  if (resposta.body[0] == '{') {
+    dynamic decode = json.decode(resposta.body);
+    if (decode["usuarioLogado"] == true) {
+      Alerta(context, "Sucesso!", decode["mensagem"]);
+      Navigator.of(context).pop();
+
+      // Redirecionar para Tela2
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TelaDeArquivos()),
+      );
+
+      return;
+    }
+    Alerta(context, "Atenção!", decode["mensagem"]);
+    return;
+  }
+  Alerta(context, "Atenção!", resposta.body);
+}
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
@@ -50,9 +124,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool _showChart = true;
- 
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -94,6 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 ElevatedButton(
                   onPressed: () {
+                    _abrirCadastro(context);
                     // Adicione aqui a ação a ser executada quando o botão "Login" for pressionado.
                   },
                   child: Text('Cadastrar'),
@@ -101,11 +173,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 SizedBox(height: 35.0), // Espaçamento entre os botões
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => TelaDeArquivos(),
-                      ),
-                    );
+                    _abrirLogin(context);
+
+                    //  Navigator.of(context).push(
+                    //  MaterialPageRoute(
+                    //    builder: (context) => TelaDeArquivos(),
+                    //   ),
+                    // );
                     // Adicione aqui a ação a ser executada quando o botão "Nova Conta" for pressionado.
                   },
                   style: ButtonStyle(

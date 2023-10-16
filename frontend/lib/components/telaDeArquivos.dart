@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import "package:expenses/components/formulárioCadastro.dart";
-import "package:expenses/conexãoComBack/conexãoComBack.dart";
 import 'dart:io';
-import 'package:expenses/components/formulárioLogin.dart';
+
 import 'package:flutter/Services.dart';
 import 'package:expenses/components/transaction_list.dart';
 import 'package:expenses/components/chart.dart';
@@ -55,43 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _dadosCadastro(String email, String senha, String idPlano) {
-    print(email + " " + senha + " " + idPlano);
-  }
 
-
-
-  _dadosLogin(String email, String senha) {
-    print(email + " " + senha);
-  }
-
-
-
-  _abrirLogin(BuildContext context) async{
-    showModalBottomSheet(
-      context: context,
-      isDismissible: false,
-      builder: (_) {
-        return  FormularioLogin(_dadosLogin);
-      },
-    );
-  }
-
-  _abrirCadastro(BuildContext context) async {
-    dynamic planos = await pegaPlanos();
-    Map<String, String> mapPlanos = {};
-    for (dynamic i in planos) {
-      mapPlanos[i['name']] = i['_id'];
-    }
-
-    showModalBottomSheet(
-      context: context,
-      isDismissible: false,
-      builder: (_) {
-        return FormularioCadastro(_dadosCadastro,mapPlanos);
-      },
-    );
-  }
+  
 
   // Mapeamento de extensão de arquivo para ícone
   final Map<String, IconData> _fileIconMapping = {
@@ -190,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.upload),
-        onPressed: () async => await _abrirLogin(context),
+        onPressed: () async => await _abreNavegadorDeArquivos(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

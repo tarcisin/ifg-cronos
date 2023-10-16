@@ -12,7 +12,7 @@ class _DropdownState extends State<Dropdown> {
   String selectedOption = "";
 
   // Método para obter o valor selecionado
-  String? setSelectedValue() {
+  void setSelectedValue() {
     widget.selectedvalue = widget.planos[selectedOption];
     
   }
