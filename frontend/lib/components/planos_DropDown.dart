@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class Dropdown extends StatefulWidget {
-  Map<String, String> planos;
-  Dropdown(this.planos);
+  final Map<String, String> planos;
+  final ValueChanged<String?>? onChanged;
+
+  Dropdown(this.planos, {this.onChanged});
+
   @override
   String? selectedvalue;
   _DropdownState createState() => _DropdownState();
@@ -14,52 +18,119 @@ class _DropdownState extends State<Dropdown> {
   // Método para obter o valor selecionado
   void setSelectedValue() {
     widget.selectedvalue = widget.planos[selectedOption];
-    
+    if (widget.onChanged != null) {
+      widget.onChanged!(widget.selectedvalue);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (selectedOption == "") {
-      selectedOption = widget.planos.keys.toList()[0]!;
+      selectedOption = widget.planos.keys.first;
     }
     setSelectedValue();
 
-    return Align(
-      alignment: Alignment.centerLeft, // Alinhar à esquerda
-      child: Row(
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      // Para iOS, use o CupertinoPicker
+      return Row(
         children: <Widget>[
-          Text("Plano:    "),
-          DropdownButton<String>(
-            value: selectedOption,
-
-            onChanged: (String? newValue) {
-              widget.planos.remove("Selecionar");
-              setState(() {
-                selectedOption = newValue!;
-                setSelectedValue();
-              });
-            },
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: Colors.black,
+          Text(
+            "Plano:    ",
+            style: TextStyle(
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
             ),
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black,
-            ), // Ícone personalizado
-            elevation: 1,
-
-            items: widget.planos.keys
-                .toList()
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
+          ),
+          GestureDetector(
+            onTap: () {
+              showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) {
+                  return CupertinoPicker(
+                    itemExtent: 32.0,
+                    onSelectedItemChanged: (int index) {
+                      setState(() {
+                        selectedOption = widget.planos.keys.elementAt(index);
+                        setSelectedValue();
+                        Navigator.pop(context);
+                      });
+                    },
+                    children: widget.planos.keys.map((String value) {
+                      return Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
               );
-            }).toList(),
+            },
+            child: Text(
+              selectedOption,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
           ),
         ],
-      ),
-    );
+      );
+    } else {
+      // Para Android, use o DropdownButton
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Row(
+          children: <Widget>[
+            Text(
+              "Plano:    ",
+              style: TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            DropdownButton<String>(
+              value: selectedOption,
+              onChanged: (String? newValue) {
+                widget.planos.remove("Selecionar");
+                setState(() {
+                  selectedOption = newValue!;
+                  setSelectedValue();
+                });
+              },
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: Colors.green,
+              ),
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.green,
+              ),
+              elevation: 1,
+              underline: Container(
+                height: 1,
+                color: Colors.green, // Adicionar uma linha de separação personalizada
+              ),
+              dropdownColor: Colors.green[100], // Cor de fundo do dropdown
+              items: widget.planos.keys
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:io';
@@ -16,9 +17,8 @@ class TelaDeArquivos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return const MyHomePage();
-      
-    
   }
 }
 
@@ -52,9 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _transactions.removeWhere((tr) => tr.id == id);
     });
   }
-
-
-  
 
   // Mapeamento de extensão de arquivo para ícone
   final Map<String, IconData> _fileIconMapping = {
@@ -95,6 +92,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Widget _getIconButtom(IconData icon, Function() function) {
+    return Platform.isIOS
+        ? GestureDetector(onTap: () async => function(), child: Icon(icon))
+        : FloatingActionButton(
+            child: Icon(icon),
+            onPressed: () async => await function(),
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -112,50 +118,55 @@ class _MyHomePageState extends State<MyHomePage> {
     final avaliableHeigh = MediaQuery.of(context).size.height -
         appBar.preferredSize.height -
         MediaQuery.of(context).padding.top;
-    return Scaffold(
-      appBar: appBar,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Text(
-                  "Exibir armazenamento",
-                  style: TextStyle(
-                      color: Colors.green[400], // Cor do texto
-                      fontSize: 15.0, // Tamanho da fonte
-                      fontWeight:
-                          FontWeight.bold, // Espessura da fonte (negrito)
+    final bodyPage = SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Text(
+                "Exibir armazenamento",
+                style: TextStyle(
+                    color: Colors.green[400], // Cor do texto
+                    fontSize: 15.0, // Tamanho da fonte
+                    fontWeight: FontWeight.bold, // Espessura da fonte (negrito)
 
-                      fontFamily: 'Roboto'), // Família da fonte
-                ),
-                Switch(
-                    value: _showChart,
-                    onChanged: (value) {
-                      setState(() {
-                        _showChart = value;
-                      });
-                    })
-              ],
-            ),
-            // Planos_DropDown(context),
-            _showChart
-                ? Container(
-                    height: avaliableHeigh * (isLandScape ? 0.3 : 0.7),
-                    child: Chart(_transactions))
-                : SizedBox(height: avaliableHeigh * 0.03),
-            Container(
-                height: avaliableHeigh * 0.7,
-                child: TransactionList(_transactions, _removeTransaction)),
-          ],
-        ),
+                    fontFamily: 'Roboto'), // Família da fonte
+              ),
+              Platform.isAndroid || Platform.isIOS || Platform.isWindows
+                  ? Switch.adaptive(
+                      value: _showChart,
+                      onChanged: (value) {
+                        setState(() {
+                          _showChart = value;
+                        });
+                      })
+                  : SizedBox(width: 10, height: 10)
+            ],
+          ),
+          // Planos_DropDown(context),
+          _showChart
+              ? Container(
+                  height: avaliableHeigh * (isLandScape ? 0.3 : 0.7),
+                  child: Chart(_transactions))
+              : SizedBox(height: avaliableHeigh * 0.03),
+          Container(
+              height: avaliableHeigh * 0.7,
+              child: TransactionList(_transactions, _removeTransaction)),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.upload),
-        onPressed: () async => await _abreNavegadorDeArquivos(),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+    final page = SafeArea(child: bodyPage);
+    return Platform.isIOS
+        ? CupertinoPageScaffold(child: page)
+        : Scaffold(
+            appBar: appBar,
+            body: page,
+            floatingActionButton: _getIconButtom(
+                Platform.isIOS ? CupertinoIcons.cloud_upload : Icons.upload,
+                _abreNavegadorDeArquivos),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+          );
   }
 }

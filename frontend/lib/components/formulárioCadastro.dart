@@ -1,12 +1,15 @@
+import 'package:expenses/components/adaptative_button.dart';
 import 'package:flutter/material.dart';
 import 'planos_DropDown.dart';
+import 'adaptative_text_field.dart';
 
 class FormularioCadastro extends StatefulWidget {
-  final void Function(String, String, String,BuildContext) onSubmit;
+  final void Function(String, String, String, BuildContext) onSubmit;
   final Map<String, String> planos;
   Dropdown? _dropdown;
   BuildContext _context;
-  FormularioCadastro(this.onSubmit, this.planos,this._context, {Key? key}) : super(key: key) {
+  FormularioCadastro(this.onSubmit, this.planos, this._context, {Key? key})
+      : super(key: key) {
     _dropdown = Dropdown(planos);
   }
 
@@ -27,7 +30,7 @@ class _FormularioCadastroState extends State<FormularioCadastro> {
       return;
     }
 
-    widget.onSubmit(email, senha, _idPlano,widget._context);
+    widget.onSubmit(email, senha, _idPlano, widget._context);
   }
 
   @override
@@ -45,48 +48,24 @@ class _FormularioCadastroState extends State<FormularioCadastro> {
                   fontSize: 20, // Tamanho da fonte do título
                   fontWeight: FontWeight.bold, // Estilo de fonte em negrito
                 )),
-            TextField(
-              controller: _emailontroller,
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
-            ),
-            TextField(
-              controller: _senhaController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'Senha',
-              ),
-            ),
+            AdaptativeTextField(
+                label: "Email",
+                controller: _emailontroller,
+                keyboardType: TextInputType.emailAddress,
+                onSubmitted: (_) => _submitForm()),
+            AdaptativeTextField(
+                label: "Senha",
+                controller: _senhaController,
+                keyboardType: TextInputType.visiblePassword,
+                onSubmitted: (_) => _submitForm()),
             widget._dropdown!,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                ElevatedButton(
-                  child: Text(
-                    'Criar nova conta',
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.button?.color,
-                    ),
-                  ),
-                  onPressed: _submitForm,
-                ),
-                ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.red), // Cor de fundo do botão
-                  ),
-                  child: Text(
-                    'Cancelar',
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.button?.color,
-                    ),
-                  ),
-                  onPressed: ()=>Navigator.of(context).pop(),
-                ),
+                AdaptativeButton(
+                    "Criar Conta", Colors.green, _submitForm),
+                AdaptativeButton(
+                    "Cancelar", Colors.red, () => Navigator.of(context).pop()),
               ],
             ),
           ],

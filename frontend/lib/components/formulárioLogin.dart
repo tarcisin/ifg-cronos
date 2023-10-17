@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-
+import 'adaptative_button.dart';
+import 'adaptative_text_field.dart';
 
 class FormularioLogin extends StatefulWidget {
   final void Function(String, String, BuildContext) onSubmit;
   BuildContext _context;
-  FormularioLogin(this.onSubmit, this._context, {Key? key}) : super(key: key) {
-   
-  }
+  FormularioLogin(this.onSubmit, this._context, {Key? key}) : super(key: key) {}
 
   @override
   State<FormularioLogin> createState() => _formularioLoginState();
@@ -23,7 +22,7 @@ class _formularioLoginState extends State<FormularioLogin> {
       return;
     }
 
-    widget.onSubmit(email, senha,widget._context);
+    widget.onSubmit(email, senha, widget._context);
   }
 
   @override
@@ -41,47 +40,22 @@ class _formularioLoginState extends State<FormularioLogin> {
                   fontSize: 20, // Tamanho da fonte do título
                   fontWeight: FontWeight.bold, // Estilo de fonte em negrito
                 )),
-            TextField(
-              controller: _emailontroller,
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
-            ),
-            TextField(
-              controller: _senhaController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'Senha',
-              ),
-            ),
+            AdaptativeTextField(
+                label: "Email",
+                controller: _emailontroller,
+                keyboardType: TextInputType.emailAddress,
+                onSubmitted: (_) => _submitForm()),
+            AdaptativeTextField(
+                label: "Senha",
+                controller: _senhaController,
+                keyboardType: TextInputType.visiblePassword,
+                onSubmitted: (_) => _submitForm()),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                ElevatedButton(
-                  child: Text(
-                    "Entrar",
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.button?.color,
-                    ),
-                  ),
-                  onPressed: _submitForm,
-                ),
-                ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.red), // Cor de fundo do botão
-                  ),
-                  child: Text(
-                    'Cancelar',
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.button?.color,
-                    ),
-                  ),
-                  onPressed: ()=>Navigator.of(context).pop(),
-                ),
+                AdaptativeButton("Entrar", Colors.green, _submitForm),
+                AdaptativeButton(
+                    "Cancelar", Colors.red, () => Navigator.of(context).pop())
               ],
             ),
           ],
