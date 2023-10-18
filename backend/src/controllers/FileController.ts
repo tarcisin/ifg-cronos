@@ -1,4 +1,8 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export class FileController {
 
@@ -14,6 +18,10 @@ export class FileController {
 
     static async middleware(req: Request, res: Response) {
         try {
+            const token = String(req.headers.authorization).split('Bearer ')[1];
+            const tokenDescriptografado = jwt.decode(token);
+            const teste = jwt.verify(token, String(process.env.SECRET));
+            console.log(token, tokenDescriptografado, teste);
             const file = req.files;
             console.log(file);
 

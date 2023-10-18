@@ -1,0 +1,161 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "C.R.O.N.O.S",
+    "description": "Documentação das APIs do projeto C.R.O.N.O.S",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": ""
+    }
+  ],
+  "paths": {
+    "/planos": {
+      "get": {
+        "description": "Nessa rota, serão exibidos todos os planos disponíveis no sistema!",
+        "summary": "",
+        "tags": [
+          "Planos"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "description": "Nessa rota, será possível criar um novo usuário para acessar o sistema!",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  },
+                  "idPlano": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso!"
+          },
+          "500": {
+            "description": "Houve um erro interno em nosso servidor!"
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "post": {
+        "description": "Nessa rota, será possível efetuar o login do usuário!",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "As credenciais informadas são inválidas!"
+          },
+          "500": {
+            "description": "Houve um erro interno em nosso servidor!"
+          }
+        }
+      }
+    },
+    "/files": {
+      "post": {
+        "description": "Nessa rota, será possível enviar arquivos para o servidor a fim de armazená-los em nuvem!",
+        "tags": [
+          "Files"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "idUsuario": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "File"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Arquivo enviado com sucessos!"
+          },
+          "500": {
+            "description": "Houve um erro interno em nosso servidor!"
+          }
+        }
+      }
+    }
+  }
+}
