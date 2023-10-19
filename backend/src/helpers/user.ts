@@ -2,6 +2,7 @@ import { client } from '../config/db';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { ObjectId } from 'mongodb';
 
 dotenv.config();
 
@@ -17,6 +18,17 @@ interface Usuario {
 const saltosBCrypt = 14;
 const database = client.db('clientes');
 const collection = database.collection('usuarios');
+
+const buscaUsuarioPorId = async (id: string) => {
+    try {
+        const auxId = new ObjectId(id);
+        const resultado = await collection.findOne({ _id: auxId });
+        return resultado;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
 
 const verificaSeUsuarioExiste = async (email: string) => {
     try {
@@ -60,7 +72,7 @@ const criaJwt = (usuario: Usuario) => {
             id: usuario._id,
             email: usuario.email,
             idPlano: usuario.idPlano
-        }, String(process.env.SECRET), { expiresIn: '1h' });
+        }, String(process.env.SECRET), { expiresIn: '12h' });
         return token;
     } catch (error: any) {
         throw new Error('Erro ao criar token: ' + error.message);
@@ -71,11 +83,25 @@ const logaUsuario = async (email: string, senha: string) => {
     try {
         const usuario = await collection.findOne<Usuario>({ email });
         const senhaValida = await bcrypt.compare(senha, String(usuario?.senha));
-        
-        if(!senhaValida) {
+
+        if (!senhaValida) {
             return { token: null, mensagem: 'Senha inválida!' };
         }
+
         const token = criaJwt(usuario as Usuario);
+        const filtro = { _id: new ObjectId(usuario?._id) };
+        const dadosAtualizados = {
+            $set: {
+                ultimaSessao: new Date(),
+                token: token
+            }
+        }
+        const atualizaSessao = await collection.updateOne(filtro, dadosAtualizados);
+
+        if (!token || !atualizaSessao) {
+            return { token: null, mensagem: 'Erro ao atualizar sessão!' };
+        }
+
         return { token, mensagem: 'Login efetuado com sucesso!' };
     } catch (error: any) {
         throw new Error('Erro ao tentar fazer o login do usuário: ' + error.message);
@@ -89,7 +115,9 @@ const cadastraNovoUsuario = async (props: Usuario) => {
             senha: await criptografaSenha(props.senha),
             idPlano: props.idPlano,
             criadoEm: new Date(),
-            armazenamentoUsado: 0
+            armazenamentoUsado: 0,
+            ultimoLogin: null,
+            token: null
         });
         return usuario.insertedId;
     } catch (error: any) {
@@ -121,11 +149,41 @@ const validaDadosUsuario = (email: string, senha: string, idPlano: string = "123
     }
 }
 
+const calculaDiferencaEmHoras = (dataInicial: Date, dataFinal: Date) => {
+    const d1 = new Date(dataInicial);
+    const d2 = new Date(dataFinal);
+    const subtracao = d2.getHours() - d1.getHours();
+    const resultadoFinal = subtracao < 0 ? subtracao * (-1) : subtracao;
+    return resultadoFinal;
+}
+
+const validaSessaoUsuario = async (token: string) => {
+    try {
+        const tokenDescriptografado = jwt.verify(token, String(process.env.SECRET)) as any;
+        const idUsuario = new ObjectId(tokenDescriptografado.id);
+        const resultado = await collection.findOne({ _id: idUsuario });
+
+        if (resultado?.token !== token) {
+            return false;
+        }
+
+        if (calculaDiferencaEmHoras(new Date(), resultado?.ultimaSessao) >= 12) {
+            return false;
+        }
+
+        return true;
+    } catch (error: any) {
+        return false;
+    }
+}
+
 export {
     verificaSeUsuarioExiste,
     criptografaSenha,
     validaSenhaUsuario,
     cadastraNovoUsuario,
     validaDadosUsuario,
-    logaUsuario
+    logaUsuario,
+    buscaUsuarioPorId,
+    validaSessaoUsuario
 }

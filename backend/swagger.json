@@ -126,9 +126,14 @@
     },
     "/files": {
       "post": {
-        "description": "Nessa rota, será possível enviar arquivos para o servidor a fim de armazená-los em nuvem!",
+        "description": "Nessa rota, será possível enviar arquivos para o servidor a fim de armazená-los em nuvem! Poderão ser enviados quantos arquivos o usuário quiser! Para isso, basta enviar todos os arquivos com a key 'file'. Perceba que para enviar o arquivo, você deve enviar nos headers da requisição o token obtido ao fazer login. Você irá enviar este token com a key 'Authorization' e com o valor 'Bearer {token}'.",
         "tags": [
           "Files"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
         ],
         "requestBody": {
           "content": {
@@ -153,6 +158,39 @@
           },
           "500": {
             "description": "Houve um erro interno em nosso servidor!"
+          }
+        }
+      }
+    },
+    "/files/{id}": {
+      "get": {
+        "description": "Nessa rota, serão exibidos todos os arquivos enviados por determinado usuário!  Perceba que para enviar o arquivo, você deve enviar nos headers da requisição o token obtido ao fazer login. Você irá enviar este token com a key 'Authorization' e com o valor 'Bearer {token}'.",
+        "summary": "",
+        "tags": [
+          "Files"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do usuário",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivos listados com sucesso!"
+          },
+          "500": {
+            "description": "Erro interno no servidor!"
           }
         }
       }

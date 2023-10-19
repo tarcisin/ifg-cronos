@@ -4,13 +4,9 @@ import { FileController } from '../controllers/FileController';
 
 const router = express.Router();
 
-// Rota para listar arquivos públicos
-router.get('/', FileController.getPublicFiles);
-
-// Rota para listar arquivos públicos
-router.get('/:id', FileController.getPrivatetFiles);
-
 // Rota para upload de arquivos
-router.post('/', middleware, FileController.middleware);
+router.post('/', middleware, FileController.uploadFile);
+
+router.get('/:id', middleware, FileController.arquivosCliente);
 
 export default router;
